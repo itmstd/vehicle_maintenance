@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
+import 'package:tgvm/controller/supplier/new_request/new_request_detail_controller.dart';
 import 'package:tgvm/screen/supplier/new_request/new_request_accept_screen.dart';
 
 import '../../../shared/widgets/attachment_view.dart';
@@ -15,6 +17,8 @@ class NewRequestDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    NewRequestDetailController controller = Get.put(NewRequestDetailController());
+
     return Scaffold(
       // extendBodyBehindAppBar: true,
       backgroundColor: Colors.grey[200],
@@ -26,7 +30,7 @@ class NewRequestDetailScreen extends StatelessWidget {
             child: Column(
               children: [
                 Expanded(flex: 1,child: header()),
-                Expanded(flex: 6,child: reportItem())
+                Expanded(flex: 6,child: reportItem(controller))
               ],
             )
         ),
@@ -64,7 +68,7 @@ class NewRequestDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget reportItem() {
+  Widget reportItem(NewRequestDetailController controller) {
     return Padding(
       padding: EdgeInsets.only(top: 30),
       child: Card(
@@ -77,7 +81,12 @@ class NewRequestDetailScreen extends StatelessWidget {
         ),
         child: Padding(
           padding: EdgeInsets.all(15),
-          child: SingleChildScrollView(
+          child: Obx(() => controller.isOpenPDF.value
+              ? Stack(children: [
+                  SfPdfViewer.network("https://evault.honda.com.my/pixelvault/2022-04/58089242fead5d23677eef1802f29feab7f14fa099320.pdf"),
+                  Positioned(top: 0, left: 0, child: Container(decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.only(bottomRight: Radius.circular(15))), child: IconButton(color: Colors.black, icon: const Icon(Icons.close), onPressed: () => controller.isOpenPDF.value = false,))),
+                ],)
+              : SingleChildScrollView(
             child: Column(
               children: [
                 Text("Mouse", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),),
@@ -103,8 +112,8 @@ class NewRequestDetailScreen extends StatelessWidget {
                 SizedBox(height: 20,),
                 Text("Attachment", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),),
                 SizedBox(height: 20,),
-                AttachmentView(attachmentName: "Tyre image.jpeg", borderColor: appBarColor,),
-                AttachmentView(attachmentName: "Mileage image.jpeg", borderColor: appBarColor,),
+                AttachmentView(attachmentName: "Tyre image.jpeg", borderColor: appBarColor, controller: controller, attachmentUrl: "https://evault.honda.com.my/pixelvault/2022-04/58089242fead5d23677eef1802f29feab7f14fa099320.pdf",),
+                AttachmentView(attachmentName: "Mileage image.jpeg", borderColor: appBarColor, controller: controller, attachmentUrl: "https://evault.honda.com.my/pixelvault/2022-04/58089242fead5d23677eef1802f29feab7f14fa099320.pdf",),
                 SizedBox(height: 20,),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -115,7 +124,7 @@ class NewRequestDetailScreen extends StatelessWidget {
                 )
               ],
             ),
-          ),
+          )),
         ),
       ),
     );

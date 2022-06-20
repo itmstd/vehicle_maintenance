@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:dotted_border/dotted_border.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
@@ -86,8 +89,22 @@ class NewRequestAcceptScreen extends StatelessWidget {
           itemBuilder: (context, index){
             return Obx(() => Padding(
               padding: EdgeInsets.symmetric(vertical: 5),
-              child: controller.attachmentList[index] == 0 ? InkWell(
-                onTap: () => controller.attachmentList[index] = 1,
+              child: controller.attachmentList[index] == "" ? InkWell(
+                onTap: () async {
+                  FilePickerResult? result = await FilePicker.platform.pickFiles(
+                    type: FileType.custom,
+                    allowMultiple: false,
+                    allowedExtensions: ['jpg', 'pdf', 'png', 'jpeg'],
+                  );
+                  if (result != null) {
+                    File file = File(result.files[0].path!);
+                    controller.attachmentList[index] = file.path;
+                    print(file.path);
+                  } else {
+                    controller.attachmentList[index] = "";
+                    // User canceled the picker
+                  }
+                },
                 child: DottedBorder(
                   borderType: BorderType.RRect,
                   radius: const Radius.circular(10),
@@ -120,11 +137,11 @@ class NewRequestAcceptScreen extends StatelessWidget {
               ) : Stack(
                 clipBehavior: Clip.none,
                 children: [
-                  AttachmentView(attachmentName: "Tyre image.jpeg", borderColor: appBarColor,),
+                  AttachmentView(attachmentName: controller.attachmentList[index].split("/").last, attachmentPath: controller.attachmentList[index], borderColor: appBarColor, controller: controller,),
                   Positioned(
                       right: 0,
                       top: -5,
-                      child: InkWell(onTap: () => controller.attachmentList[index] = 0,child: Icon(Icons.remove_circle, color: Colors.red,))
+                      child: InkWell(onTap: () => controller.attachmentList[index] = "",child: Icon(Icons.remove_circle, color: Colors.red,))
                   )
                 ],),
             ));
